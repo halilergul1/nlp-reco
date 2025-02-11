@@ -63,10 +63,20 @@ def generate_recommendations(final_df, cosine_sim_matrix, valid_indices):
     valid_hotel_ids = final_df.loc[valid_indices, 'hotel_id'].values
 
     for idx, hotel_id in tqdm(enumerate(valid_hotel_ids), total=len(valid_hotel_ids)):
-        #  cosine similarity scores
         scores = cosine_sim_matrix[idx]
-        top_indices = np.argsort(scores)[::-1][1:11]  # Get top 10 excluding itself
+        
+        # Get indices sorted by similarity (descending)
+        sorted_indices = np.argsort(scores)[::-1]  # Sort in descending order
+
+        # Removing the current hotel itself (where hotel_id matches)
+        sorted_indices = [i for i in sorted_indices if valid_hotel_ids[i] != hotel_id]
+
+        #  top 10 recommendations
+        top_indices = sorted_indices[:10]
+
+        # Store recommendations
         recommendations[hotel_id] = final_df.loc[valid_indices].iloc[top_indices]['hotel_id'].values
+
 
     return recommendations
 
@@ -86,7 +96,8 @@ def handle_missing_embeddings(final_df, recommendations, valid_indices):
     popular_hotels = final_df.sort_values(by='popularity_score', ascending=False)['hotel_id'].values
 
     for hotel_id in final_df.loc[invalid_indices, 'hotel_id'].values:
-        recommendations[hotel_id] = popular_hotels[:50]  # top 50 most popular hotels
+        filtered_hotels = [h for h in popular_hotels if h != hotel_id]  # Remove self-recommendation
+        recommendations[hotel_id] = filtered_hotels[:10]  # Select top 10
 
     return recommendations
 
@@ -104,11 +115,12 @@ def rank_recommendations(final_df, recommendations):
     final_recommendations = []
 
     for hotel_id, reco_hotels in recommendations.items():
-        reco_final = final_df[final_df['hotel_id'].isin(reco_hotels)][['hotel_id', 'popularity_score']]
-        reco_final = reco_final.sort_values(by='popularity_score', ascending=False).head(10)
+        reco_final = final_df[(final_df['hotel_id'].isin(reco_hotels)) & (final_df['hotel_id'] != hotel_id)][['hotel_id', 'popularity_rank']]
+        reco_final = reco_final.sort_values(by='popularity_rank', ascending=False).head(10)
 
         for rank, reco_hotel_id in enumerate(reco_final['hotel_id'], 1):
             final_recommendations.append([hotel_id, reco_hotel_id, rank])
+
 
     recommendation_df = pd.DataFrame(final_recommendations, columns=['hotel_id', 'reco_hotel_id', 'rank'])
 

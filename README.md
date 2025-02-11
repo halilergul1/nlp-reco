@@ -3,8 +3,8 @@
 ## **1. Introduction**
 
 This document details the implementation of an NLP-powered hotel recommendation system I did. The solution involves extracting key topics from hotel descriptions, defining star attributes, and recommending similar hotels based on extracted information. The recommendation model is validated using city divergence ratio analysis. My approach is as follows:
-    - Retrieval stage: Retreiving top 10 similar hotels based on cosine similarity of their merged text descriptions topic embeddings.
-    - Ranking stage: Ranking these hotels based on their popularity score.
+  - **Retrieval stage**: Retreiving top 10 similar hotels based on cosine similarity of their merged text descriptions topic embeddings. 
+  - **Ranking stage**: Ranking these hotels based on their popularity scores.
 
 ---
 
@@ -12,9 +12,9 @@ This document details the implementation of an NLP-powered hotel recommendation 
 
 ### **2.1 Data Preprocessing & Exploratory Data Analysis (EDA)**
 
-- Three datasets were used:
-  1. `hotel_info.csv`: Contains structured hotel information (ratings, categories, etc.).
-  2. `hotel_desc.csv`: Contains textual descriptions of hotels.
+- Three datasets were used (not available publicly):
+  1. `information_of_hotels.csv`: Contains structured hotel information (ratings, categories, etc.).
+  2. `hotel_detailed_descriptions.csv`: Contains textual descriptions of hotels.
   3. `session_data.csv`: Contains user interactions with hotels. I did not use for this project.
 
 - Basic data quality checks were performed and I also explored the data about descriptive statistics and distributions:
@@ -85,22 +85,3 @@ To ensure that the recommendations are reasonable, I examined the ratio of recom
 
 - **Potential Bias in Recommendations:**
   - If some cities have a large number of hotels with similar topics (like Antalya), recommendations may become biased toward those locations.
-
----
-
-## **4. Decision on A/B Testing**
-
-### **4.1 Should We Proceed with an A/B Test?**
-
-- **Recommendation:** Definetely yes, but only after adjusting for city-based bias. Recommendation modeling paradigm by itself requires an A/B test to validate its effectiveness.
-  - If users prefer, or if product team/owners/stakeholders prefer, geographically relevant recommendations, then I beleive filtering by city should be implemented before testing.
-  - If cross-city recommendations are acceptable, an A/B test can be conducted as-is to measure user engagement.
-
-- **Potential Key Metrics for A/B Test:**
-  - Click-through rate (CTR) on recommended hotels.
-  - Conversion rate (bookings from recommendations).
-
-- **Test Design:**
-  - **Control Group:** Existing recommendation system (or random hotel suggestions).
-  - **Treatment Group:** NLP-powered recommendations with similarity-based ranking.
-  - **Success Criteria:** If the treatment group has a statistically significant increase in CTR and conversions, the new system should be adopted.

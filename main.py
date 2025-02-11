@@ -46,5 +46,9 @@ def main():
 
     print("\n Pipeline execution complete!")
 
+    # also validate whether we did not recommend a hotel to itself
+    assert merged_df.query("hotel_id == recommended_hotel_id").empty, "A hotel is recommended to itself!"
+
+
 if __name__ == "__main__":
     main()

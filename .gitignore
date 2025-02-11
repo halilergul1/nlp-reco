@@ -10,3 +10,4 @@ data/lm/lm.2gram.slm
 data/session_data.csv
 __pycache__/
 *.dylib
+notebooks/eda-and-experiments.ipynb
