@@ -1,0 +1,11 @@
+pandas
+numpy
+matplotlib
+seaborn
+wordcloud
+spacy
+bertopic
+langdetect
+jpype1
+scikit-learn
+tqdm

@@ -1,0 +1,12 @@
+models/topic_model
+venv/
+data/lm/lm.2gram.slm
+data/session_data.csv
+__pycache__/
+*.dylib # Exclude all files
+models/topic_model
+venv/
+data/lm/lm.2gram.slm
+data/session_data.csv
+__pycache__/
+*.dylib
