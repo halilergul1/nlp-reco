@@ -17,6 +17,8 @@ def clean_and_convert_embedding(embedding_str):
     Returns:
         np.array or NaN: Converted NumPy array or NaN if invalid.
     """
+    if isinstance(embedding_str, np.ndarray):
+        return embedding_str  # already a numpy array (in-memory pipeline)
     if isinstance(embedding_str, str):
         try:
             cleaned_str = re.sub(r"[\[\]]", "", embedding_str).strip()
@@ -24,7 +26,7 @@ def clean_and_convert_embedding(embedding_str):
             return np.array([float(x) for x in embedding_values])
         except ValueError:
             return np.nan  #  NaN if conversion fails
-    return np.nan  #  NaN if not a string
+    return np.nan  #  NaN if not a string or array
 
 def compute_cosine_similarity(final_df):
     """
@@ -115,8 +117,8 @@ def rank_recommendations(final_df, recommendations):
     final_recommendations = []
 
     for hotel_id, reco_hotels in recommendations.items():
-        reco_final = final_df[(final_df['hotel_id'].isin(reco_hotels)) & (final_df['hotel_id'] != hotel_id)][['hotel_id', 'popularity_rank']]
-        reco_final = reco_final.sort_values(by='popularity_rank', ascending=False).head(10)
+        reco_final = final_df[(final_df['hotel_id'].isin(reco_hotels)) & (final_df['hotel_id'] != hotel_id)][['hotel_id', 'popularity_score']]
+        reco_final = reco_final.sort_values(by='popularity_score', ascending=False).head(10)
 
         for rank, reco_hotel_id in enumerate(reco_final['hotel_id'], 1):
             final_recommendations.append([hotel_id, reco_hotel_id, rank])

@@ -29,13 +29,13 @@ def clean_hotel_info(hotel_info):
     """
 
     # this is for missing categorical values
-    hotel_info["hotel_subtown"].fillna("Unknown", inplace=True)
-    hotel_info["facility_type"].fillna(hotel_info["facility_type"].mode()[0], inplace=True)
+    hotel_info["hotel_subtown"] = hotel_info["hotel_subtown"].fillna("Unknown")
+    hotel_info["facility_type"] = hotel_info["facility_type"].fillna(hotel_info["facility_type"].mode()[0])
 
     # filling numerical values with median (I checked how many in eda part in a notebook)
     rating_columns = list(config.STAR_RATING_WEIGHTS.keys())
     for col in rating_columns:
-        hotel_info[col].fillna(hotel_info[col].median(), inplace=True)
+        hotel_info[col] = hotel_info[col].fillna(hotel_info[col].median())
 
     return hotel_info
 
@@ -134,6 +134,23 @@ def merge_processed_data(hotel_desc, hotel_info):
     merged_df = merged_df[["hotel_id", "topic", "representation", "topic_embedding", "normalized_star_rating", "popularity_score"]]
 
     return merged_df
+
+def preprocess_data():
+    """
+    Orchestrates the full data preprocessing pipeline.
+
+    Returns:
+        hotel_info (DataFrame): Cleaned hotel metadata with star ratings and popularity scores.
+        hotel_desc (DataFrame): Raw hotel descriptions.
+        session_data (DataFrame): Cleaned session data.
+    """
+    hotel_info, hotel_desc, session_data = load_data()
+    hotel_info = clean_hotel_info(hotel_info)
+    session_data = clean_session_data(session_data)
+    hotel_info = compute_weighted_star_rating(hotel_info)
+    hotel_info = compute_popularity_score(hotel_info)
+    return hotel_info, hotel_desc, session_data
+
 
 def save_final_dataset(final_df):
     """

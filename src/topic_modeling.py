@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from bertopic import BERTopic
@@ -34,8 +35,12 @@ def train_topic_model(hotel_desc_merged):
         hotel_desc_merged (DataFrame): Dataframe with assigned topics and representations.
         topic_model (BERTopic): Trained BERTopic model.
     """
-    # Initialize BERTopic model (multilingual)
-    topic_model = BERTopic(language="multilingual")
+    # Initialize BERTopic model (multilingual).
+    # min_topic_size=5 keeps the algorithm working on small datasets (e.g. the
+    # 50-hotel mock set) while remaining sensible on larger real datasets.
+    n_docs = len(hotel_desc_merged)
+    min_topic_size = max(2, min(5, n_docs // 10))
+    topic_model = BERTopic(language="multilingual", min_topic_size=min_topic_size)
 
     # Fitting BERTopic on lemmatized hotel descriptions
     topics, _ = topic_model.fit_transform(hotel_desc_merged["lemmatized_text"])
@@ -49,6 +54,7 @@ def train_topic_model(hotel_desc_merged):
     hotel_desc_merged["representation"] = hotel_desc_merged["topic"].map(topic_words_dict)
 
     # saving to folder of model
+    os.makedirs(config.MODEL_PATH, exist_ok=True)
     topic_model.save(f"{config.MODEL_PATH}/topic_model")
 
     return hotel_desc_merged, topic_model
@@ -64,11 +70,16 @@ def extract_topic_embeddings(hotel_desc_merged, topic_model):
     Returns:
         hotel_desc_merged (DataFrame): Updated dataframe with topic embeddings.
     """
-    # Extract topic embeddings
+    # Extract topic embeddings.
+    # topic_embeddings_ is ordered by sorted topic IDs: [-1, 0, 1, 2, ...].
+    # We must use the actual topic IDs as keys, not 0-based indices, so that
+    # topic -1 (outlier cluster) is correctly included in the mapping.
     topic_embeddings = np.array(topic_model.topic_embeddings_)
-
-    # Create a mapping of topic_id -> embedding vector
-    topic_embedding_dict = {i: topic_embeddings[i] for i in range(len(topic_embeddings))}
+    sorted_topic_ids = sorted(topic_model.get_topics().keys())
+    topic_embedding_dict = {
+        topic_id: topic_embeddings[i]
+        for i, topic_id in enumerate(sorted_topic_ids)
+    }
 
     # Map topic embeddings to hotels
     hotel_desc_merged["topic_embedding"] = hotel_desc_merged["topic"].map(topic_embedding_dict)

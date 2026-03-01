@@ -21,3 +21,6 @@ IMAGE_WEIGHT = 0.3
 
 # Number of top recommendations
 TOP_N = 10
+
+MODEL_PATH = "models/"
+PROCESSOR_TYPE = "turkish"  # "turkish" | "fallback"

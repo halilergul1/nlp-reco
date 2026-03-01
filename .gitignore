@@ -1,13 +1,13 @@
 models/topic_model
+hs_err_pid*.log
 venv/
+.venv/
 data/lm/lm.2gram.slm
-data/session_data.csv
-__pycache__/
-*.dylib # Exclude all files
-models/topic_model
-venv/
-data/lm/lm.2gram.slm
-data/session_data.csv
+data/hotel_desc_lemmatized.csv
+data/hotel_desc_with_topics.csv
+data/hotel_recommendations.csv
+data/final_dataset.csv
 __pycache__/
 *.dylib
 notebooks/eda-and-experiments.ipynb
+.uv/
